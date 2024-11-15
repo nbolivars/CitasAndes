@@ -1,0 +1,580 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta http-equiv="Expires" content="0" />
+        <meta http-equiv="Last-Modified" content="0" />
+        <meta http-equiv="Cache-Control" content="no-cache" />
+        <meta http-equiv="Pragma" content="no-cache" />
+
+
+        <title>Agendar Cita</title>
+        <link rel="stylesheet" type="text/css" href="../Css/estilos2.css" />
+        <link rel="Stylesheet" href="../jquery/jquery-ui.css" />
+
+        <style>
+            .error {
+                border: 1px solid #b94a48!important;
+                background-color: #fee!important;
+            }
+        </style>
+        <link href="../../cdn/css/vendors.bundle.css" rel="stylesheet" type="text/css"/>
+        <link href="../../cdn/css/style.bundle.css" rel="stylesheet" type="text/css"/>
+        <link href="../../cdn/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+        <!--        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">-->
+        <link href="../Css/sweetalert.css" rel="stylesheet" type="text/css"/>
+        <style type="text/css">
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            html, body {
+                margin: 0;
+                height: 100%;
+            }
+
+            #TabCitas, #TabMedico {
+                border: solid 1px rgb(240,240,240);
+                border-collapse: collapse;
+                width: 100%;
+            }
+            #TabCitas thead tr th
+            {
+                background: #246;
+                color: #fff;
+                padding:5px;
+            }
+
+            #TabCitas td {
+                border: solid 1px rgb(240,240,240);
+                color: rgb(70,70,70);
+                padding: 3px;
+            }
+
+            #TabCitas tbody tr:hover {
+                background-color: #eee;
+            }
+
+            #TabCitas tbody tr:nth-child(even) {
+                background: #EFF3FB;
+            }
+
+            table td {
+                padding-bottom: 10px;
+            }
+            .selecciona {
+                width:20px;
+            }
+            .derecha {
+                text-align:right;
+            }
+            .centro {
+                text-align:center;
+            }
+            #frmagenda * {
+                font-family: Barlow;
+            }
+            .modal-body *,
+            #myModal *{
+                font-family: Barlow;
+                font-size:16px;
+            }
+        </style>
+    </head>
+    <body>
+
+        <form id="frmagenda" name="frmagenda" action="post">
+            <div style="background: rgb(0,128,192); color: #fff; font-size:16px; text-align:center; text-shadow: 0 1px black; padding:5px;">
+                Agendacion De Citas
+            </div>
+            <div class="m-content">
+
+                <div class="m-portlet">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+
+                                <h3 class="m-portlet__head-text">
+                                    <label class="form-control-label">Especialidad : </label>
+                                    <select id="CmbEspe" name="CmbEspe" aria-required="true" class="required" aria-invalid="true"> 
+                                        <option value="">[ ... ]</option>
+                                    </select>
+                                </h3>
+                                <h3 class="m-portlet__head-text">
+                                    <label class="form-control-label">&nbsp;&nbsp;&nbsp;Tipo de Consulta : </label>
+                                    <select id="CmbTipoC" name="CmbTipoC" aria-required="true" class="required" aria-invalid="true"> 
+                                        <option value="">[ ... ]</option>
+                                    </select>
+                                </h3>
+                                <h3 class="m-portlet__head-text">
+                                    <input type="button" id="BtnBuscarDispo" value="Buscar" class="boton" />
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group m-form__group row" id="DivItemFac" style="width: 100%; box-shadow: inset 0px 0px 3px; padding: 5px; height:10%; ">
+                        <div class="col-lg-3">
+                            <label>Código</label>
+                            <input type="text" id="TxtCodigo" size="10"  />
+                        </div>
+                        <div class="col-lg-3">
+                            <label>Descripción : </label>
+                            <input type="text" id="TxtDescripcion" size="50" />
+                        </div>
+                        <div class="col-lg-1">
+                            <label>Cantidad : </label>
+                            <input type="text" id="TxtCanti" size="5" />
+                        </div>
+                        <div class="col-lg-1">
+                            <input type="button" id="BtnAddProc" value="Agregar" class="boton" />
+                        </div>
+                        <input type="hidden" id="idcodigo" name="idcodigo"/>
+                        <div class="col-lg-12">
+                            <div id="DivFactura" style="height:40%; width: 100%; box-shadow: inset 0px 0px 3px; padding: 5px; ">
+                                <table id="TablaFactura">
+                                    <thead style="background: rgb(0,128,192); color: #fff; text-align: center; font-size: 11px;">
+                                        <tr>
+                                            <th>Cód. Cups</th>
+                                            <th>Descripción</th>
+                                            <th>Cantidad</th>
+                                            <th>Código </th>
+                                            <th>Fechas</th>
+                                            <th>...</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!--                    <div class="m-portlet__head">
+                                            <div class="m-portlet__head-caption">
+                                                <div class="m-portlet__head-title">
+                    
+                                                    <h3 class="m-portlet__head-text">
+                                                        <label class="form-control-label">Paciente</label>
+                    
+                                                        <input type="button" id="BtnBuscarDispo" value="Buscar" class="boton" />
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                        </div>-->
+                    <div class="m-portlet__body">
+                        <div class="m-pricing-table-1">
+                            <div class="m-pricing-table-1__items row" id="itemsrows">   <!--                                inicio-->
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <input type="hidden" id="txtidagenda" name="txtidagenda"/>
+
+
+
+        </form>
+
+
+        <div id="myModalHorario" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-mg"  >
+                <div class="modal-content">
+                    <form id="frmbuscarpte" name="frmbuscarpte" class="m-form m-form--fit m-form--label-align-right m-form--group-seperator-dashed">
+                        <div class="modal-header">
+                            <h4 class="modal-title">
+                                Horario disponible
+                            </h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <input type="hidden" id="idsala"  name="idsala"  />
+                        </div>
+                        <div class="modal-body">
+                            <div class="m-portlet">
+                                <div class="form-group m-form__group row">
+                                    <div class="col-lg-4 m-form__group-sub">
+                                        <label class="form-control-label">Especialidad</label>
+                                        <select id="CmbEspe" name="CmbEspe" aria-required="true" class="required" aria-invalid="true"> 
+                                            <option value="">[ ... ]</option>
+                                        </select>
+                                    </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <div class="col-lg-2 m-form__group-sub">
+                                        <label class="form-control-label">Hora Inicial</label>
+                                        <input type="text" id="txthrini" autocomplete="off" class="required" name="txthrini" size="6" />
+                                    </div>
+                                    <div class="col-lg-2 m-form__group-sub">
+                                        <label class="form-control-label">Hora Final</label>
+                                        <input type="text" id="txthrfin" autocomplete="off" class="required"  name="txthrfin" size="6" />
+                                    </div>
+
+                                </div>
+                                <div class="form-group m-form__group row">
+                                    <div class="col-lg-4 m-form__group-sub">
+                                        <label class="form-control-label">Dias</label>
+                                        <select id="Cmbdias" name="Cmbdias" aria-required="true" class="required" aria-invalid="true"> 
+                                            <option value="">[ ... ]</option>
+                                        </select>
+                                    </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                                    <div class="col-lg-2 m-form__group-sub">
+                                        <button  type="button" class="btn btn-default confirmar" >Registrar</button>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group m-form__group row">
+                                    <div class="col-lg-12 m-form__group-sub">
+                                        <table class="table table-striped table-bordered table-condensed flip-content" id="TabTurnos" name="TabTurnos">
+                                            <thead class='flip-content'>
+                                                <tr>
+                                                    <th>Especialidad</th>
+                                                    <th>Consultorio</th>
+                                                    <th>Dia</th>
+                                                    <th>Hora Inicial</th>
+                                                    <th>Hora Final</th>
+                                                    <th>Estado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="mayusculas"> </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button  type="button" class="btn btn-default" data-dismiss="modal">Aceptar</button>
+                            <button  type="button" class="btn btn-default aceptar" data-dismiss="modal">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" >
+                <div class="modal-content">
+                    <form id="frmbuscarpte" name="frmbuscarpte" class="m-form m-form--fit m-form--label-align-right m-form--group-seperator-dashed">
+                        <div class="modal-header">
+
+                            <div class="m-portlet__head">
+
+                                <div class="m-portlet__head-caption">
+                                    <div class="m-portlet__head-title">
+                                        <div class="col-lg-5 m-form__group-sub">
+                                            <label class="form-control-label">Tipo Documento</label>
+                                            <select id="CmbTipoDoc" name="CmbTipoDoc" >
+                                                <option value="">[ ... ]</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">Doc. Identidad</label>
+                                            <input type="text" id="TxtNdoc" name="TxtNdoc" autocomplete="off" size="17" maxlength="22"  />
+                                        </div>
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <input type="button" id="BtnBuscarPte" value="Buscar" class="boton" />
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-body">
+
+                            <div class="m-portlet">
+                                <input type="hidden" id="txtidmed" name="txtidmed"/>
+                                <input type="hidden" id="txtidespmed" name="txtidespmed"/>
+                                <input type="hidden" id="txtfecha" name="txtfecha"/>
+                                <input type="hidden" id="txtestado" name="txtestado"/>
+                                <input type="hidden" id="idagenda" name="idagenda"/>
+                                <input type="hidden" id="txthoraini" name="txthoraini"/>
+                                <input type="hidden" id="TxtestadoFactura" name="TxtestadoFactura" />
+                                <input type="hidden" id="IdTipoCOnsulta" name="IdTipoCOnsulta" />
+                                <div style="box-shadow: inset 0 0 5px;  height: auto; padding: 10px;" id="DivDatos">
+                                    <div class="form-group m-form__group row">
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">Primer Apellido</label>
+                                            <input type="text" id="TxtApellido1" name="TxtApellido1" class="required"  size="20" maxlength="20" />
+                                        </div>
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">Segundo Apellido</label>
+                                            <input type="text" id="TxtApellido2" name="TxtApellido2"   size="20" maxlength="20" />
+                                        </div>
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">Primer Nombre</label>
+                                            <input type="text" id="TxtNombre1" name="TxtNombre1" class="required"  size="20" maxlength="20" />
+                                        </div>
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">Segundo Nombre</label>
+                                            <input type="text" id="TxtNombre2" name="TxtNombre2"  size="20" maxlength="20" />
+                                        </div>
+
+                                    </div>
+                                    <div class="form-group m-form__group row">
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">Genero</label>
+                                            <select id="CmbGenero" required name="CmbGenero">
+                                                <option value="0">[ Seleccione ]</option>
+                                                <option value="M">Masculino</option>
+                                                <option value="F">Femenino</option>
+                                                <option value="I">Indeterminado</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-5 m-form__group-sub">
+                                            <label class="form-control-label">Fecha Nacimiento</label>
+                                            <input type="text" id="TxtAaNac" size="2" placeholder="AAAA" required maxlength="4" title="Año"/>
+                                            <input type="text" id="TxtMmNac" size="1" required placeholder="MM" maxlength="2" title="Mes" />
+                                            <input type="text" id="TxtDdNac" size="1" required placeholder="DD" maxlength="2" title="Dia" />
+                                            <input type="text" id="TxtFnacimiento" size="8" required size="6" placeholder="Fecha Nac." readonly="readonly" style="border: none; box-shadow: none;" />
+                                            <input type="text" id="TxtEdad" size="7" placeholder="Edad" style="border:none; box-shadow:none;" />
+                                        </div>
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">Nacionalidad</label>
+                                            <select id="CmbNacionalidad" style="width: 200px;" name="CmbNacionalidad" required>
+                                                <option value="">[ Seleccione ]</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group m-form__group row">
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">Procedencia</label>
+                                            <input type="text" id="TxtProcedencia" size="20" name="TxtProcedencia" required />
+                                        </div>
+                                        <div class="col-lg-4 m-form__group-sub">
+                                            <label class="form-control-label">Ciudad Nacimiento</label>
+                                            <select id="CmbCiudadNac" style="width: 200px;" name="CmbCiudadNac"  required="">
+                                                <option value="">[ Seleccione ]</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">Municipio Residencia</label>
+                                            <select id="CmbCiudadRes" style="width: 200px;" name="CmbCiudadRes" required="">
+                                                <option value="">[ Seleccione ]</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group m-form__group row">
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">Dirección Residencia</label>
+                                            <input type="text" id="TxtDireccion"  name="TxtDireccion" required="" size="20" maxlength="60" />
+                                        </div>
+                                        <div class="col-lg-2 m-form__group-sub">
+                                            <label class="form-control-label">Teléfono Res.</label>
+                                            <input type="text" id="TxtTelefono"  name="TxtTelefono" required="" size="10" maxlength="60" />
+                                        </div>
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">Tipo de Usuario</label>
+                                            <select id="CmbTipoAfil" name="CmbTipoAfil" style="width: 200px;"  required>
+                                                <option value="">[ Seleccione ]</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-4 m-form__group-sub">
+                                            <label class="form-control-label" style="margin-left: 20px;">Email</label></br>
+                                            <input type="text" id="txtemail"  name="txtemail" size="20" maxlength="60" style="margin-left: 20px;"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group m-form__group row">
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">Estado Civil</label>
+                                            <select id="CmbEstdoCivil" name="CmbEstdoCivil" required="">
+                                                <option value="">[ Seleccione ]</option>
+                                                <option value="S">Soltero (a)</option>
+                                                <option value="C">Casado (a)</option>
+                                                <option value="U">Union Libre</option>
+                                                <option value="V">Viudo (a)</option>
+                                                <option value="N">No Especificado</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-4 m-form__group-sub">
+                                            <label class="form-control-label">Etnia</label></br>
+                                            <select id="CmbEtnia" name="CmbEtnia" required>
+                                                <option value="">[ Seleccione ]</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">Nivel Educativo</label>
+                                            <select id="CmbNivelEdu" style="width: 200px;" name="CmbNivelEdu">
+                                                <option value="">[ Seleccione ]</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group m-form__group row">
+                                        <div class="col-lg-4 m-form__group-sub">
+                                            <label class="form-control-label">Ocupacion</label>
+                                            <select id="CmbOcupacion" style="width: 220px;" name="CmbOcupacion" required="">
+                                                <option value="">[ Seleccione ]</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-4 m-form__group-sub">
+                                            <label class="form-control-label">Entidad</label>
+                                            <select style="width: 200px;" id="CmbEntidad" name="CmbEntidad" >
+                                                <option value="">[ Seleccione ]</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-4 m-form__group-sub">
+                                            <label class="form-control-label">Plan/Programa</label>
+                                            <select style="width: 200px;" id="CmbPrograma" name="CmbPrograma" required="required">
+                                                <option value="">[ Seleccione ]</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group m-form__group row">
+                                        <div class="col-lg-4 m-form__group-sub">
+                                            <label class="form-control-label">Nivel Salarial</label>
+                                            <select style="width: 200px;" id="CmbNivel" name="CmbNivel" required>
+                                                <option value="">[ Seleccione ]</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-4 m-form__group-sub">
+                                            <label class="form-control-label">Fecha Sugerida Paciente</label>
+                                            <input type="text" name="TxtFechaPaciente" id="TxtFechaPaciente" class="required" readonly="readonly" />
+                                        </div>
+                                        <div class="col-lg-4 m-form__group-sub">
+                                            <label class="form-control-label">Causa Externa</label>
+                                            <select id="CmbCausaExterna" name="CmbCausaExterna"  required>
+                                                <option value="">[ Seleccione ]</option>
+                                            </select>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="form-group m-form__group row">
+                                        <div class="col-lg-5 m-form__group-sub">
+                                            <label class="form-control-label">Diagnóstico</label>
+                                            <input type="text" id="TxtCodDx" required  name="TxtCodDx" size="3" required />
+                                            <input type="text" id="TxtNomDx" size="35" />
+                                        </div>
+                                        <div class="col-lg-3 m-form__group-sub">
+                                            <label class="form-control-label">No. Autorización</label>
+                                            <input type="text" id="TxtAutorización" size="20" name="TxtAutorización" required=""  />
+                                        </div>
+                                        <div class="col-lg-2 m-form__group-sub">
+                                            <label class="form-control-label">Fuente</label>
+                                            <select id="CmbFuente" style="width: 200px;" name="CmbFuente" required>
+                                                <option value="">[ Seleccione ]</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group m-form__group row">
+                                        <div class="col-lg-5 m-form__group-sub">
+                                            <label class="form-control-label">Estado Embarazo</label>
+                                            <select id="CmbEstadoEmbarazo" name="CmbEstadoEmbarazo"  required>
+                                                <option value="0">[ Seleccione ]</option>
+                                                <option value="S"> Si </option>
+                                                <option value="N"> No </option>
+                                                <option value="N/A"> No Aplica </option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="m-portlet__foot m-portlet__foot--fit">
+                                        <div class="m-form__actions m-form__actions">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <button type="button" class="btn boton" id="addshedule">Registrar</button>
+                                                    <button type="button" class="btn btn-secondary" id="cancelshdule">Cancel</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--                                <div class="m-portlet__foot m-portlet__no-border m-portlet__foot--fit">
+                                                                    <div class="m-form__actions m-form__actions--solid">
+                                                                        <div class="row">
+                                                                            <div class="col-lg-4"></div>
+                                                                            <div class="col-lg-8">
+                                                                                <button type="button" class="btn boton" id="addshedule">Registrar</button>
+                                                                                <button type="button" class="btn btn-secondary" id="cancelshdule">Cancel</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>-->
+
+
+                            </div>
+                        </div>
+
+                        <div id="citas" style=" height: auto">
+                            <span class="parpadea text"><strong></strong></span>
+                        </div>
+
+
+                    </form>
+                    <div id="success_message" style="width:100%; height:100%; display:none; "> <h3>Sent your message successfully!</h3> </div>
+                    <div id="error_message" style="width:100%; height:100%; display:none; "> <h3>Error</h3> Sorry there was an error sending your form. </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <script src="../jquery/vendors.bundle.js" type="text/javascript"></script>
+        <script src="../jquery/scripts.bundle.js" type="text/javascript"></script>
+        <script type="text/javascript" src="../jquery/jquery12.js"></script>
+        <script type="text/javascript" src="../jquery/jquery-ui12.js"></script>
+
+        <script src="../jquery/jquery.validate.min.js" type="text/javascript"></script>
+
+
+        <script src="../jquery/form-controls.js" type="text/javascript"></script>
+        <script src="../../cdn/jquery/bootstrap.min.js" type="text/javascript"></script>
+        <!--        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>-->
+
+        <script type="text/javascript" src="../jquery/jquery.numeric.js"></script>
+
+        <script type="text/javascript" src="../jquery/RestaFechas.js"></script>
+
+        <script src="https://unpkg.com/moment@2.17.0/moment.js"></script>
+        <script src="FrmAgendarCitas.js"></script>
+        <!--        <script src="../jquery/sweetalert2.js" type="text/javascript"></script>
+            <script src="../jquery/base.js" type="text/javascript"></script>
+                <script src="FrmAgendarCitas.js"></script>
+                <script src="../jquery/sweetalert2.js" type="text/javascript"></script>
+                <script src="../jquery/base.js" type="text/javascript"></script>-->
+    </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

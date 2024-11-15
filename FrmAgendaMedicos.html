@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Creacion de Agenda</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="../Css/estilos2.css" />
+    <link rel="stylesheet" type="text/css" href="../jquery/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" href="../jquery/jquery.datetimepicker.css" />
+
+    <script type="text/javascript" src="../jquery/jquery12.js"></script>
+    <script type="text/javascript" src="../jquery/jquery-ui12.js"></script>
+    <script src="../jquery/jquery.datetimepicker.full.js"></script>
+
+    <script type="text/javascript" src="FrmAgendaMedicos.js"></script>
+
+
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        #TabParametros {
+            width: 60%;
+            margin: auto;
+        }
+
+            #TabParametros td {
+                padding: 3px;
+            }
+
+        #DivAgenda {
+            width: 80%;
+            margin: auto;
+            height: 70%;
+            overflow: scroll;
+        }
+
+        .TablaDatos {
+            width: 100%;
+        }
+
+        .TablaDatos td {
+            padding: 5px;
+            border: solid 1px #eee;
+        }
+
+        .TablaDatos tbody tr:hover {
+            background: #ddd;
+        }
+        .BotonCancelar {
+            color: white;
+            background: red;
+            display:block;
+            font-size:18px;
+            width:20px;
+            height:20px;
+            cursor:pointer;
+            border-radius:50%;
+            text-align:center;
+        }
+    </style>
+</head>
+<body>
+    <div class="DivTitulo">
+        Creacion de Agenda de Médicos
+       
+    </div>
+    <form id="frmagenda" name="frmagenda">
+        <table id="TabParametros">
+            <tr>
+                <td>Médico</td>
+                <td>: 
+                       
+                    <select id="CmbMedicos" style="width: 300px;">
+                        <option value="">[ ... ]</option>
+                    </select>
+                </td>
+                <td>Especialidad</td>
+                <td>: 
+                       
+                    <select id="CmbEspe" style="width: 150px;">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Fecha</td>
+                <td>: 
+                       
+                    <input type="text" id="TxtFecha" size="8" autocomplete="off" />
+                </td>
+                <td>Frecuencia</td>
+                <td>: 
+                       
+                    <select id="CmbFrecuencia">
+                        <option value="">[ ... ]</option>
+                        <option value='10'>10</option>
+                        <option value='15'>15</option>
+                        <option value='20'>20</option>
+                        <option value='30'>30</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Hora Inicial</td>
+                <td>:  
+                       
+                    <input type="text" id="TxtHoraIni" autocomplete="off" size="6" />
+                </td>
+                <td>Hora Final</td>
+                <td>: 
+                       
+                    <input type="text" id="TxtHoraFin" autocomplete="off" size="6" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="centro">
+                    <input type="button" id="BtnRegistrar" class="boton btnreggistrar" value=" Registrar ">
+                </td>
+            </tr>
+        </table>
+    </form>
+    <hr>
+    <div id="DivAgenda">
+        <table id="TabAgenda" class="TablaDatos">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Especialidad</th>
+                    <!--<th style="width:100px; ">Dia</th> -->
+                    <th>Fecha</th>
+                    <th>Hora inicial</th>
+                    <th>Hora final</th>
+                    <th>Frecuencia</th>
+                    <th>Citas<br />Asignadas</th>
+                    <th>...</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <label id="LblHoy"></label>
+    <div id="DivMsg"></div>
+</body>
+</html>
+
